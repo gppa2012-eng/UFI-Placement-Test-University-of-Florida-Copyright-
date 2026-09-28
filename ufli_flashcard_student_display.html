@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UFLI Flashcard Student Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        /* Header with KSU branding */
+        .ksu-header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .ksu-header h1 {
+            font-size: 48px;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            letter-spacing: -1px;
+            color: #ffc629;
+        }
+
+        .ksu-header p {
+            font-size: 20px;
+            margin: 0;
+            opacity: 0.95;
+            font-weight: 300;
+            color: white;
+        }
+
+        .ksu-tagline {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #ffc629;
+        }
+
+        /* Main content area */
+        .start-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .start-screen h2 {
+            font-size: 32px;
+            color: #000000;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .start-screen p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .start-button {
+            background: #ffc629;
+            color: #000000;
+            border: none;
+            padding: 18px 48px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 198, 41, 0.3);
+        }
+
+        .start-button:hover {
+            background: #e6b300;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 198, 41, 0.4);
+        }
+
+        .fullscreen-toggle-btn {
+            background: #000000;
+            color: #ffc629;
+            border: 2px solid #ffc629;
+            padding: 12px 32px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .fullscreen-toggle-btn:hover {
+            background: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(255, 198, 41, 0.3);
+        }
+
+        .btn-fullscreen {
+            background: #000000;
+            color: #ffc629;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid #ffc629;
+        }
+
+        .btn-fullscreen:hover {
+            background: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(255, 198, 41, 0.3);
+        }
+
+        .nav-bar.hidden {
+            display: none;
+        }
+
+        .control-bar.hidden {
+            display: none;
+        }
+
+        /* Footer with copyright */
+        .footer {
+            background: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            margin-top: auto;
+        }
+
+        .copyright {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: white;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            border-color: #ffc629;
+            background-color: #fffaf0;
+        }
+
+        .nav-btn.active {
+            background: #ffc629;
+            color: #000000;
+            border-color: #ffc629;
+            font-weight: bold;
+        }
+
+        .nav-home {
+            background: #ffc629;
+            color: #000000;
+            border-color: #ffc629;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .nav-home:hover {
+            background: #e6b300;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Section Header Card */
+        .section-header {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 800px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffc629;
+            letter-spacing: 1px;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        /* Word Card */
+        .word-card {
+            background: white;
+            border: 3px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-display {
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 6px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            padding: 0 48px;
+        }
+
+        /* Control Bar */
+        .control-bar {
+            background: white;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+
+        .btn-back {
+            background: #b0b3b2;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .btn-back:hover {
+            background: #989b9a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(176, 179, 178, 0.4);
+        }
+
+        .btn-back:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-next {
+            background: #ffc629;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .btn-next:hover {
+            background: #e6b300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 198, 41, 0.4);
+        }
+
+        .btn-next:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-set-nav {
+            background: #000000;
+            color: #ffc629;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-set-nav:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-set-nav:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            transform: none;
+            color: #999;
+        }
+
+        .btn-start {
+            background: #ffc629;
+            color: #000000;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+
+        .btn-start:hover {
+            background: #e6b300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 198, 41, 0.4);
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .word-card {
+                height: 400px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .word-card {
+                height: 300px;
+            }
+
+            .section-header {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .nav-bar {
+                padding: 10px;
+            }
+
+            .nav-btn {
+                font-size: 9px;
+                padding: 6px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with UF branding -->
+    <div class="ksu-header">
+        <h1>UFLI Flashcard Display</h1>
+        <p>Foundations Intervention Placement Test</p>
+        <div class="ksu-tagline">© University of Florida, 2025</div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-title">
+            <a href="ufli_assessment_hub.html" style="text-decoration: none;">
+                <button class="nav-btn nav-home">← Back to Hub</button>
+            </a>
+        </div>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="selectSet(0)">Set 1 - Short Vowels</button>
+            <button class="nav-btn" onclick="selectSet(1)">Set 2 - Digraphs</button>
+            <button class="nav-btn" onclick="selectSet(2)">Set 3 - VCe</button>
+            <button class="nav-btn" onclick="selectSet(3)">Set 4 - Longer Words</button>
+            <button class="nav-btn" onclick="selectSet(4)">Set 5 - Endings</button>
+            <button class="nav-btn" onclick="selectSet(5)">Set 6 - R-Controlled</button>
+            <button class="nav-btn" onclick="selectSet(6)">Set 7 - Vowel Teams</button>
+            <button class="nav-btn" onclick="selectSet(7)">Set 8 - Other Vowels</button>
+            <button class="nav-btn" onclick="selectSet(8)">Set 9 - Diphthongs</button>
+            <button class="nav-btn" onclick="selectSet(9)">Set 10 - Suffixes</button>
+            <button class="nav-btn" onclick="selectSet(10)">Set 11 - Affixes</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div id="content"></div>
+    </div>
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+        <button class="btn btn-back" id="backBtn" onclick="prevWord()">← Back</button>
+        <button class="btn btn-next" id="nextBtn" onclick="nextWord()">Next Word (N)</button>
+        <button class="btn btn-fullscreen" id="fullscreenToggle" onclick="toggleFullscreen()">Fullscreen Mode</button>
+        <div class="info-text" id="infoText"></div>
+    </div>
+
+    <!-- Set Navigation Bar -->
+    <div class="control-bar">
+        <button class="btn btn-set-nav" id="prevSetBtn" onclick="previousSet()">← Previous Set: <span id="prevSetName"></span></button>
+        <button class="btn btn-set-nav" id="nextSetBtn" onclick="nextSet()">Next Set: <span id="nextSetName"></span> →</button>
+        <button class="btn btn-fullscreen" id="fullscreenToggle2" onclick="toggleFullscreen()">Fullscreen Mode</button>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: white; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #999;">
+        <a href="ufli_assessment_hub.html" style="color: #ffc629; text-decoration: none; font-weight: bold;">← Back to Assessment Hub</a>
+    </div>
+
+    <script>
+        // All UFLI sets with organized sections
+        const sets = [
+            {
+                name: "Set 1: Short Vowels",
+                sections: [
+                    { title: "Set 1: Short Vowels | Real Words Line 1", words: ['mat', 'pop', 'beg', 'cut', 'tip'] },
+                    { title: "Set 1: Short Vowels | Real Words Line 2", words: ['skin', 'bump', 'sand', 'step', 'trek'] },
+                    { title: "Set 1: Short Vowels | Made-up Words Line 1", words: ['tob', 'mip', 'jum', 'yag', 'fet'] },
+                    { title: "Set 1: Short Vowels | Made-up Words Line 2", words: ['stum', 'fosp', 'dret', 'blad', 'nimp'] }
+                ]
+            },
+            {
+                name: "Set 2: Digraphs",
+                sections: [
+                    { title: "Set 2: Digraphs | Real Words Line 1", words: ['thing', 'hall', 'graph', 'sack', 'chop'] },
+                    { title: "Set 2: Digraphs | Real Words Line 2", words: ['them', 'song', 'shin', 'all', 'bath'] },
+                    { title: "Set 2: Digraphs | Made-up Words Line 1", words: ['oll', 'guth', 'whek', 'chob', 'teng'] },
+                    { title: "Set 2: Digraphs | Made-up Words Line 2", words: ['vesh', 'phin', 'jick', 'bith', 'heth'] }
+                ]
+            },
+            {
+                name: "Set 3: VCe",
+                sections: [
+                    { title: "Set 3: VCe | Real Words Line 1", words: ['made', 'rope', 'face', 'cage', 'rude'] },
+                    { title: "Set 3: VCe | Real Words Line 2", words: ['eve', 'ride', 'tube', 'bike', 'ice'] },
+                    { title: "Set 3: VCe | Made-up Words Line 1", words: ['nume', 'moke', 'zete', 'dipe', 'lage'] },
+                    { title: "Set 3: VCe | Made-up Words Line 2", words: ['dace', 'jame', 'mose', 'bete', 'jate'] }
+                ]
+            },
+            {
+                name: "Set 4: Reading Longer Words",
+                sections: [
+                    { title: "Set 4: Longer Words | Real Words Line 1", words: ['human', 'backlash', 'cannot', 'grasses', 'called'] },
+                    { title: "Set 4: Longer Words | Real Words Line 2", words: ['helmet', 'foxes', 'listed', 'picked', 'being'] },
+                    { title: "Set 4: Longer Words | Made-up Words Line 1", words: ['diffed', 'vanging', 'tulled', 'tashes', 'dotal'] },
+                    { title: "Set 4: Longer Words | Made-up Words Line 2", words: ['tickup', 'opet', 'hended', 'hectip', 'mishes'] }
+                ]
+            },
+            {
+                name: "Set 5: Ending Spelling Patterns",
+                sections: [
+                    { title: "Set 5: Ending Patterns | Real Words Line 1", words: ['match', 'wild', 'ledge', 'host', 'revolt'] },
+                    { title: "Set 5: Ending Patterns | Real Words Line 2", words: ['find', 'spy', 'fold', 'duty', 'ankle'] },
+                    { title: "Set 5: Ending Patterns | Made-up Words Line 1", words: ['dudge', 'zind', 'jold', 'shild', 'recolt'] },
+                    { title: "Set 5: Ending Patterns | Made-up Words Line 2", words: ['pandy', 'kitch', 'ongle', 'bly', 'vost'] }
+                ]
+            },
+            {
+                name: "Set 6: R-Controlled Vowels",
+                sections: [
+                    { title: "Set 6: R-Controlled | Real Words", words: ['sort', 'card', 'fern', 'bird', 'hurt'] },
+                    { title: "Set 6: R-Controlled | Made-up Words", words: ['merb', 'narg', 'surt', 'firl', 'zord'] }
+                ]
+            },
+            {
+                name: "Set 7: Long Vowel Teams",
+                sections: [
+                    { title: "Set 7: Vowel Teams | Real Words Line 1", words: ['heap', 'brief', 'toe', 'mail', 'crow'] },
+                    { title: "Set 7: Vowel Teams | Real Words Line 2", words: ['goat', 'stay', 'honey', 'jeep', 'sigh'] },
+                    { title: "Set 7: Vowel Teams | Made-up Words Line 1", words: ['deeb', 'pait', 'klow', 'yoe', 'zie'] },
+                    { title: "Set 7: Vowel Teams | Made-up Words Line 2", words: ['rean', 'bigh', 'burkey', 'voam', 'tay'] }
+                ]
+            },
+            {
+                name: "Set 8: Other Vowels",
+                sections: [
+                    { title: "Set 8: Other Vowels | Real Words Line 1", words: ['hook', 'taught', 'suit', 'slaw', 'haul'] },
+                    { title: "Set 8: Other Vowels | Real Words Line 2", words: ['clue', 'wash', 'few', 'bread', 'scoop'] },
+                    { title: "Set 8: Other Vowels | Made-up Words Line 1", words: ['ruit', 'lew', 'hauf', 'puel', 'toob'] },
+                    { title: "Set 8: Other Vowels | Made-up Words Line 2", words: ['vew', 'gaught', 'tawn', 'kue', 'dook'] }
+                ]
+            },
+            {
+                name: "Set 9: Diphthongs & Silent Letters",
+                sections: [
+                    { title: "Set 9: Diphthongs | Real Words Line 1", words: ['wring', 'gown', 'knack', 'pouch', 'cloud'] },
+                    { title: "Set 9: Diphthongs | Real Words Line 2", words: ['toil', 'coy', 'limb', 'knob', 'coin'] },
+                    { title: "Set 9: Diphthongs | Made-up Words Line 1", words: ['camb', 'knas', 'floy', 'lound', 'voy'] },
+                    { title: "Set 9: Diphthongs | Made-up Words Line 2", words: ['wrate', 'gowl', 'wrike', 'sumb', 'poul'] }
+                ]
+            },
+            {
+                name: "Set 10: Suffixes & Prefixes",
+                sections: [
+                    { title: "Set 10: Suffixes & Prefixes | Real Words Line 1", words: ['endless', 'oldest', 'boxes', 'mindful', 'undo'] },
+                    { title: "Set 10: Suffixes & Prefixes | Real Words Line 2", words: ['dislike', 'offers', 'longer', 'prepay', 'firmly'] },
+                    { title: "Set 10: Suffixes & Prefixes | Made-up Words Line 1", words: ['ishes', 'fonger', 'bostly', 'prepon', 'rehax'] },
+                    { title: "Set 10: Suffixes & Prefixes | Made-up Words Line 2", words: ['lostest', 'unoble', 'zopless', 'geerful', 'hemix'] }
+                ]
+            },
+            {
+                name: "Set 11: Additional Affixes",
+                sections: [
+                    { title: "Set 11: Additional Affixes | Real Words Line 1", words: ['erosion', 'creator', 'agreement', 'mixture', 'printer'] },
+                    { title: "Set 11: Additional Affixes | Real Words Line 2", words: ['workable', 'newish', 'quickness', 'finalist', 'dusty'] },
+                    { title: "Set 11: Additional Affixes | Real Words Line 3", words: ['nation', 'flexible', 'unify', 'binary', 'tricycle'] },
+                    { title: "Set 11: Additional Affixes | Made-up Words", words: ['loter', 'tassion', 'pature', 'bowish', 'tixture'] }
+                ]
+            }
+        ];
+
+        let currentSetIndex = null;
+        let currentSectionIndex = 0;
+        let currentWordIndex = 0;
+        let allWords = [];
+
+        function selectSet(index) {
+            currentSetIndex = index;
+            currentSectionIndex = 0;
+            currentWordIndex = -1;  // Start at set name card
+            allWords = [];
+            
+            // Flatten all words from all sections
+            sets[index].sections.forEach(section => {
+                allWords.push(...section.words);
+            });
+
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn:not(.nav-home)').forEach((btn, i) => {
+                btn.classList.remove('active');
+                if (i === index) btn.classList.add('active');
+            });
+
+            showCard();
+        }
+
+        function showCard() {
+            const content = document.getElementById('content');
+            
+            if (currentSetIndex === null) {
+                content.innerHTML = `
+                    <div class="start-screen">
+                        <h2>Welcome to UFLI Flashcard Display</h2>
+                        <p>Select a set from the navigation bar above to begin administering the UFLI Foundations Intervention Placement Test.</p>
+                        <button class="start-button" onclick="selectSet(0)">Start with Set 1</button>
+                        <button class="fullscreen-toggle-btn" onclick="toggleFullscreen()">Fullscreen Mode</button>
+                    </div>
+                    <div class="footer">
+                        <div class="copyright">© University of Florida, 2025</div>
+                    </div>
+                `;
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('backBtn').disabled = true;
+                document.getElementById('infoText').innerHTML = '';
+                updateSetNavButtons();
+                return;
+            }
+
+            // If at word index -1, show set name card
+            if (currentWordIndex === -1) {
+                const setName = sets[currentSetIndex].name;
+                const cardHTML = `
+                    <div class="section-header">
+                        <div class="section-title">${setName}</div>
+                    </div>
+                `;
+                content.innerHTML = cardHTML;
+                document.getElementById('infoText').innerHTML = '';
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('backBtn').disabled = true;
+                updateSetNavButtons();
+                return;
+            }
+
+            // Find which section we're in
+            let wordCount = 0;
+            let sectionIndex = 0;
+            for (let i = 0; i < sets[currentSetIndex].sections.length; i++) {
+                if (wordCount + sets[currentSetIndex].sections[i].words.length > currentWordIndex) {
+                    sectionIndex = i;
+                    break;
+                }
+                wordCount += sets[currentSetIndex].sections[i].words.length;
+            }
+
+            const section = sets[currentSetIndex].sections[sectionIndex];
+            const wordIndexInSection = currentWordIndex - wordCount;
+            const word = section.words[wordIndexInSection];
+
+            // Just show the word card, no section header
+            const cardHTML = `
+                <div class="word-card">
+                    <div class="word-display">${word}</div>
+                </div>
+            `;
+
+            content.innerHTML = cardHTML;
+
+            // Update info text
+            const totalWords = allWords.length;
+            const wordPosition = currentWordIndex + 1;
+            document.getElementById('infoText').innerHTML = `Word ${wordPosition} of ${totalWords}`;
+
+            // Apply dynamic font sizing
+            applyFontSize();
+
+            // Enable/disable buttons
+            document.getElementById('nextBtn').disabled = (currentWordIndex >= totalWords - 1);
+            document.getElementById('backBtn').disabled = (currentWordIndex < 0);
+            
+            // Update set navigation buttons
+            updateSetNavButtons();
+        }
+
+        function nextWord() {
+            if (currentSetIndex !== null && currentWordIndex < allWords.length - 1) {
+                currentWordIndex++;
+                showCard();
+            }
+        }
+
+        function calculateFontSize(word) {
+            // Calculate font size inversely based on word length
+            // This ensures shorter words get larger font to match width of longer words
+            const baseFontSize = 480; // Base calculation value
+            const wordLength = word.length;
+            return Math.round(baseFontSize / wordLength);
+        }
+
+        function applyFontSize() {
+            const wordDisplay = document.querySelector('.word-display');
+            if (wordDisplay) {
+                const word = wordDisplay.textContent.trim();
+                const fontSize = calculateFontSize(word);
+                wordDisplay.style.fontSize = fontSize + 'px';
+            }
+        }
+
+        function prevWord() {
+            if (currentSetIndex !== null && currentWordIndex > -1) {
+                currentWordIndex--;
+                showCard();
+            }
+        }
+
+        function nextSet() {
+            if (currentSetIndex !== null && currentSetIndex < sets.length - 1) {
+                selectSet(currentSetIndex + 1);
+            }
+        }
+
+        function previousSet() {
+            if (currentSetIndex !== null && currentSetIndex > 0) {
+                selectSet(currentSetIndex - 1);
+            }
+        }
+
+        function updateSetNavButtons() {
+            if (currentSetIndex === null) {
+                document.getElementById('nextSetBtn').style.display = 'none';
+                document.getElementById('prevSetBtn').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('nextSetBtn').style.display = 'block';
+            document.getElementById('prevSetBtn').style.display = 'block';
+
+            // Update previous set button
+            if (currentSetIndex > 0) {
+                document.getElementById('prevSetBtn').disabled = false;
+                document.getElementById('prevSetName').textContent = sets[currentSetIndex - 1].name;
+            } else {
+                document.getElementById('prevSetBtn').disabled = true;
+            }
+
+            // Update next set button
+            if (currentSetIndex < sets.length - 1) {
+                document.getElementById('nextSetBtn').disabled = false;
+                document.getElementById('nextSetName').textContent = sets[currentSetIndex + 1].name;
+            } else {
+                document.getElementById('nextSetBtn').disabled = true;
+            }
+        }
+
+        let isFullscreenMode = false;
+
+        function goHome() {
+            currentSetIndex = null;
+            currentWordIndex = 0;
+            allWords = [];
+            
+            // Deactivate all set nav buttons (not home button)
+            document.querySelectorAll('.nav-btn:not(.nav-home)').forEach((btn) => {
+                btn.classList.remove('active');
+            });
+            
+            // Exit fullscreen if active
+            if (isFullscreenMode) {
+                isFullscreenMode = false;
+                const navBar = document.querySelector('.nav-bar');
+                const controlBars = document.querySelectorAll('.control-bar');
+                navBar.classList.remove('hidden');
+                controlBars.forEach(bar => bar.classList.remove('hidden'));
+                
+                // Update all fullscreen buttons
+                const fullscreenButtons = document.querySelectorAll('[id^="fullscreenToggle"]');
+                fullscreenButtons.forEach(btn => {
+                    btn.textContent = 'Fullscreen Mode';
+                });
+            }
+            
+            showCard();
+        }
+
+        function toggleFullscreen() {
+            const navBar = document.querySelector('.nav-bar');
+            const controlBars = document.querySelectorAll('.control-bar');
+            
+            isFullscreenMode = !isFullscreenMode;
+            
+            navBar.classList.toggle('hidden');
+            controlBars.forEach(bar => bar.classList.toggle('hidden'));
+            
+            // Update all fullscreen buttons
+            const fullscreenButtons = document.querySelectorAll('[id^="fullscreenToggle"]');
+            fullscreenButtons.forEach(btn => {
+                btn.textContent = isFullscreenMode ? 'Exit Fullscreen' : 'Fullscreen Mode';
+            });
+        }
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'n') {
+                nextWord();
+            }
+        });
+
+        // Initial display
+        showCard();
+    </script>
+</body>
+</html>
